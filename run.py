@@ -8,7 +8,11 @@ import sys
 
 import config
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', stream=sys.stdout)
+logging.basicConfig(filename='logs_sprawko6.log',
+                    encoding='UTF-8',
+                    filemode='a',
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 logger2 = logging.getLogger('azure')
@@ -37,16 +41,21 @@ CONTAINER_ID = config.settings['container_id']
 
 
 def create_items(container):
+    """
+    Creates items in the specified container.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container where items will be created.
+
+    Returns:
+    - None
+    """
     logging.info('\nCreating Items\n')
 
-    # Create a SalesOrder object. This object has nested properties and various types including numbers, DateTimes and strings.
-    # This can be saved as JSON as is without converting into rows/columns.
     sales_order = get_sales_order("SalesOrder1")
     logging.info('\nCreating Items1\n')
     container.create_item(body=sales_order)
 
-    # As your app evolves, let's say your object has a new schema. You can insert SalesOrderV2 objects without any
-    # changes to the database tier.
     sales_order2 = get_sales_order_v2("SalesOrder2")
     logging.info('\nCreating Items2\n')
     container.create_item(body=sales_order2)
@@ -59,6 +68,15 @@ def create_items(container):
     container.create_item(body=sales_order3)
 
 def scale_container(container):
+    """
+    Scales the throughput of the specified container.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container to scale.
+
+    Returns:
+    - None
+    """
     logging.info('\nScaling Container\n')
 
     # You can scale the throughput (RU/s) of your container up and down to meet the needs of the workload. Learn more: https://aka.ms/cosmos-request-units
@@ -79,6 +97,17 @@ def scale_container(container):
             raise;
 
 def read_item(container, doc_id, account_number):
+    """
+    Reads an item from the specified container by its ID and partition key.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container to read the item from.
+    - doc_id (str): The ID of the item to read.
+    - account_number (str): The partition key of the item to read.
+
+    Returns:
+    - None
+    """
     logging.info('\nReading Item by Id\n')
 
     # We can do an efficient point read lookup on partition key and id
@@ -90,6 +119,15 @@ def read_item(container, doc_id, account_number):
 
 
 def read_items(container):
+    """
+    Reads all items in the specified container.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container to read items from.
+
+    Returns:
+    - None
+    """
     logging.info('\nReading all items in a container\n')
 
     # NOTE: Use MaxItemCount on Options to control how many items come back per trip to the server
@@ -104,6 +142,16 @@ def read_items(container):
 
 
 def query_items(container, account_number):
+    """
+    Queries items in the specified container by partition key.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container to query items from.
+    - account_number (str): The partition key to filter items by.
+
+    Returns:
+    - None
+    """
     logging.info('\nQuerying for an  Item by Partition Key\n')
 
     # Including the partition key value of account_number in the WHERE filter results in a more efficient query
@@ -118,6 +166,17 @@ def query_items(container, account_number):
 
 
 def replace_item(container, doc_id, account_number):
+    """
+    Replaces an item in the specified container by its ID and partition key.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container to replace the item in.
+    - doc_id (str): The ID of the item to replace.
+    - account_number (str): The partition key of the item to replace.
+
+    Returns:
+    - None
+    """
     logging.info('\nReplace an Item\n')
 
     read_item = container.read_item(item=doc_id, partition_key=account_number)
@@ -128,6 +187,17 @@ def replace_item(container, doc_id, account_number):
 
 
 def upsert_item(container, doc_id, account_number):
+    """
+    Upserts an item in the specified container by its ID and partition key.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container to upsert the item in.
+    - doc_id (str): The ID of the item to upsert.
+    - account_number (str): The partition key of the item to upsert.
+
+    Returns:
+    - None
+    """
     logging.info('\nUpserting an item\n')
 
     read_item = container.read_item(item=doc_id, partition_key=account_number)
@@ -138,6 +208,18 @@ def upsert_item(container, doc_id, account_number):
 
 
 def delete_item(container, doc_id, account_number):
+
+    """
+    Deletes an item from the specified container by its ID and partition key.
+
+    Parameters:
+    - container (azure.cosmos.container.Container): The container to delete the item from.
+    - doc_id (str): The ID of the item to delete.
+    - account_number (str): The partition key of the item to delete.
+
+    Returns:
+    - None
+    """
     logging.info('\nDeleting Item by Id\n')
 
     response = container.delete_item(item=doc_id, partition_key=account_number)
@@ -146,6 +228,15 @@ def delete_item(container, doc_id, account_number):
 
 
 def get_sales_order(item_id):
+    """
+    Generates a sales order object.
+
+    Parameters:
+    - item_id (str): The ID of the sales order.
+
+    Returns:
+    - dict: A dictionary representing the sales order.
+    """
     order1 = {'id' : item_id,
             'partitionKey' : 'Account1',
             'purchase_order_number' : 'PO18009186470',
@@ -168,6 +259,15 @@ def get_sales_order(item_id):
 
 
 def get_sales_order_v2(item_id):
+    """
+    Generates a version 2 sales order object.
+
+    Parameters:
+    - item_id (str): The ID of the sales order.
+
+    Returns:
+    - dict: A dictionary representing the version 2 sales order.
+    """
     order2 = {'id' : item_id,
             'partitionKey' : 'Account2',
             'purchase_order_number' : 'PO15428132599',
@@ -195,6 +295,15 @@ def get_sales_order_v2(item_id):
     return order2
 
 def get_sales_order_v3(item_id):
+    """
+    Generates a version 3 sales order object.
+
+    Parameters:
+    - item_id (str): The ID of the sales order.
+
+    Returns:
+    - dict: A dictionary representing the version 3 sales order.
+    """
     order2 = {'id' : item_id,
             'partitionKey' : 'Account2',
             'purchase_order_number' : 'PO15428132599',
@@ -223,6 +332,15 @@ def get_sales_order_v3(item_id):
 
 
 def run_sample():
+    """
+    Runs the sample application, demonstrating basic CRUD operations on Azure Cosmos DB.
+
+    Parameters:
+    - None
+
+    Returns:
+    - None
+    """
     client = cosmos_client.CosmosClient(HOST,
                                         {'masterKey': MASTER_KEY},
                                         user_agent="CosmosDBPythonQuickstart",
